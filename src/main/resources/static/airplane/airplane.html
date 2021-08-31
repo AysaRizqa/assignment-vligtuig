@@ -1,0 +1,141 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>Airplane</title> 
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
+	<script>
+	    api = "http://localhost:8080/api/airplane/";
+
+        function getairplane(){
+
+            $('#error').empty();
+
+            $.getJSON(api + "all", function(data){
+                var output = '';
+
+                $.each(data, function(index, value){
+                    
+
+                    output += ''+ value.title +'</a><a onclick="deleteairplane(' + value.id + ');">Delete</a></li>';
+                });
+                $('#listview').empty().append(output).listview('refresh');
+            });
+        }
+
+        function saveairplane(){
+
+            $('#error').empty();
+
+      
+            var airplaneType = $('#airplaneType').val();
+            var currentAirport = $('#currentAirport').val();
+            var fuelPerTon = $('#fuelPerTon').val();
+            var identification = $('#identification').val();
+
+            if(airplaneType == null || airplaneType == ""){
+                $('#error').empty().append("Title cannot be empty!");
+                throw "NoType";
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: api,
+                data: JSON.stringify({
+                    title : title,
+                    airplaneType:airplaneType,
+                    currentAirport:currentAirport,
+                    fuelPerTon:fuelPerTon,
+                    identification:identification
+                }),
+                success: function(data) {
+                            getairplane();
+
+
+                },
+                contentType: "application/json",
+                dataType: 'json'
+            });
+
+
+
+            $('[data-role=dialog]').dialog("close");
+        }
+
+        function cancelairplane(){
+            $('[data-role=dialog]').dialog("close");
+        }
+
+        function deleteairplane(id){
+
+            $.ajax({
+                type: 'DELETE',
+                url: api + "delete/" + id,
+                success: function(data) { getairplane(); }
+            });
+        }
+
+       
+
+        function openDialog(){
+            $('#error').empty();
+            $('airplaneType').val("");
+        }
+    </script>
+</head> 
+<body onload="getairplane();">
+
+<div data-role="page" id="mainpage">
+
+	<div data-role="header">
+        <div class="container">
+		<h1 >Airplane </h1>
+	</div>
+    
+
+	<div data-role="content">
+        <a href="#popup" data-role="button" onclick="openDialog();" data-rel="dialog" data-transition="flip">Add airplane</a>
+		<p>All Airplane we have</p>
+        <div>
+		    <ul data-role="listview" data-inset="true" data-filter="true" data-split-theme="b"  data-split-icon="delete" id="listview"></ul>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div data-role="dialog" id="popup">
+
+    <div data-role="header" data-theme="e">
+        <h1>Add Airplane</h1>
+    </div><!-- /header -->
+
+    <div data-role="content" data-theme="d">
+        <p style="color: red;" id="error"></p>
+       
+
+
+        <label for="airplaneType">AirplaneType</label>
+        <input type="text" data-clear-btn="true" name="airplaneType" id="airplaneType" value="">
+        <label for="currentAirport">Current Airport</label>
+        <input type="text" data-clear-btn="true" name="currentAirport" id="currentAirport" value="">
+        <label for="fuelPerTon">fuel Per Ton</label>
+        <input type="text" data-clear-btn="true" name="fuelPerTon" id="fuelPerTon" value="">
+        <label for="identification">airplane identification(board Number)</label>
+        <input type="text" data-clear-btn="true" name="identification" id="identification" value="">
+
+
+        
+        <p><a onclick="saveairplane();" data-role="button" data-icon="save">Save New Plane</a></p>
+        <p><a onclick="cancelairplane();" data-role="button" data-icon="back">Cancel</a></p>
+    </div>
+
+</div>
+
+</body>
